@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.WuliuDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.wuliu_uuid_number as wuliuUuidNumber
+        ,a.cheliang_id as cheliangId
+        ,a.yundan_id as yundanId
+        ,a.siji_id as sijiId
+        ,a.wuliu_types as wuliuTypes
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.WuliuView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,cheliang.cheliang_uuid_number as cheliangUuidNumber
+        ,cheliang.cheliang_name as cheliangName
+        ,cheliang.cheliang_types as cheliangTypes
+        ,cheliang.cheliang_status_types as cheliangStatusTypes
+        ,cheliang.cheliang_content as cheliangContent
+        ,siji.siji_name as sijiName
+        ,siji.siji_photo as sijiPhoto
+        ,siji.sex_types as sexTypes
+        ,siji.siji_phone as sijiPhone
+        ,yundan.yonghu_id as yundanYonghuId
+        ,yundan.yundan_address as yundanAddress
+        ,yundan.yundan_name as yundanName
+        ,yundan.yundan_phone as yundanPhone
+        ,yundan.yundan_status_types as yundanStatusTypes
+
+        FROM wuliu  a
+        left JOIN cheliang cheliang ON a.cheliang_id = cheliang.id
+        left JOIN siji siji ON a.siji_id = siji.id
+        left JOIN yundan yundan ON a.yundan_id = yundan.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.wuliuUuidNumber != '' and params.wuliuUuidNumber != null and params.wuliuUuidNumber != 'null' ">
+                and a.wuliu_uuid_number like CONCAT('%',#{params.wuliuUuidNumber},'%')
+            </if>
+            <if test="params.cheliangId != null and params.cheliangId != ''">
+                and (
+                    a.cheliang_id = #{params.cheliangId}
+                )
+            </if>
+            <if test="params.yundanId != null and params.yundanId != ''">
+                and (
+                    a.yundan_id = #{params.yundanId}
+                )
+            </if>
+            <if test="params.sijiId != null and params.sijiId != ''">
+                and (
+                    a.siji_id = #{params.sijiId}
+                )
+            </if>
+            <if test="params.wuliuTypes != null and params.wuliuTypes != ''">
+                and a.wuliu_types = #{params.wuliuTypes}
+            </if>
+
+                <!-- 判断车辆信息的id不为空 -->
+            <if test=" params.cheliangIdNotNull != '' and params.cheliangIdNotNull != null and params.cheliangIdNotNull != 'null' ">
+                and a.cheliang_id IS NOT NULL
+            </if>
+            <if test=" params.cheliangUuidNumber != '' and params.cheliangUuidNumber != null and params.cheliangUuidNumber != 'null' ">
+                and cheliang.cheliang_uuid_number like CONCAT('%',#{params.cheliangUuidNumber},'%')
+            </if>
+            <if test=" params.cheliangName != '' and params.cheliangName != null and params.cheliangName != 'null' ">
+                and cheliang.cheliang_name like CONCAT('%',#{params.cheliangName},'%')
+            </if>
+            <if test="params.cheliangTypes != null  and params.cheliangTypes != ''">
+                and cheliang.cheliang_types = #{params.cheliangTypes}
+            </if>
+
+            <if test="params.cheliangStatusTypes != null  and params.cheliangStatusTypes != ''">
+                and cheliang.cheliang_status_types = #{params.cheliangStatusTypes}
+            </if>
+
+            <if test=" params.cheliangContent != '' and params.cheliangContent != null and params.cheliangContent != 'null' ">
+                and cheliang.cheliang_content like CONCAT('%',#{params.cheliangContent},'%')
+            </if>
+                <!-- 判断司机的id不为空 -->
+            <if test=" params.sijiIdNotNull != '' and params.sijiIdNotNull != null and params.sijiIdNotNull != 'null' ">
+                and a.siji_id IS NOT NULL
+            </if>
+            <if test=" params.sijiName != '' and params.sijiName != null and params.sijiName != 'null' ">
+                and siji.siji_name like CONCAT('%',#{params.sijiName},'%')
+            </if>
+            <if test="params.sexTypes != null  and params.sexTypes != ''">
+                and siji.sex_types = #{params.sexTypes}
+            </if>
+
+            <if test=" params.sijiPhone != '' and params.sijiPhone != null and params.sijiPhone != 'null' ">
+                and siji.siji_phone like CONCAT('%',#{params.sijiPhone},'%')
+            </if>
+                <!-- 判断运单信息的id不为空 -->
+            <if test=" params.yundanIdNotNull != '' and params.yundanIdNotNull != null and params.yundanIdNotNull != 'null' ">
+                and a.yundan_id IS NOT NULL
+            </if>
+            <if test="params.yonghuId != null  and params.yonghuId != ''">
+                and yundan.yonghu_id = #{params.yonghuId}
+            </if>
+            <if test=" params.yundanAddress != '' and params.yundanAddress != null and params.yundanAddress != 'null' ">
+                and yundan.yundan_address like CONCAT('%',#{params.yundanAddress},'%')
+            </if>
+            <if test=" params.yundanName != '' and params.yundanName != null and params.yundanName != 'null' ">
+                and yundan.yundan_name like CONCAT('%',#{params.yundanName},'%')
+            </if>
+            <if test=" params.yundanPhone != '' and params.yundanPhone != null and params.yundanPhone != 'null' ">
+                and yundan.yundan_phone like CONCAT('%',#{params.yundanPhone},'%')
+            </if>
+            <if test="params.yundanStatusTypes != null  and params.yundanStatusTypes != ''">
+                and yundan.yundan_status_types = #{params.yundanStatusTypes}
+            </if>
+
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>
